@@ -99,25 +99,30 @@ namespace WebHdfs.Test
 		{
 			var handler = new Mock<FakeHttpMessageHandler>();
 			handler.CallBase = true;
-			Expression<Func<FakeHttpMessageHandler, HttpResponseMessage>> innerCall = t => t.Send(It.Is<HttpRequestMessage>(
-				msg =>
-					msg.Method == method &&
-					msg.RequestUri.ToString().StartsWith(BASE_URL + WebHdfsClient.PREFIX + url + "?user.name=" + USER + "&op=" + operation, StringComparison.OrdinalIgnoreCase)));
 
-			Expression<Func<FakeHttpMessageHandler, HttpResponseMessage>> homeCall = t => t.Send(It.Is<HttpRequestMessage>(
-							msg =>
-							   msg.Method == HttpMethod.Get &&
-							   msg.RequestUri.ToString() == "http://test.me/plz/webhdfs/v1/?user.name=hdfs&op=GETHOMEDIRECTORY"));
+            Expression<Func<FakeHttpMessageHandler, HttpResponseMessage>> homeCall = t => t.Send(It.Is<HttpRequestMessage>(
+                            msg =>
+                               msg.Method == HttpMethod.Get &&
+                               msg.RequestUri.ToString() == "http://test.me/plz/webhdfs/v1/?user.name=hdfs&op=GETHOMEDIRECTORY"));
 
-			handler.Setup(innerCall)
-					.Returns(new HttpResponseMessage(HttpStatusCode.OK) { Content = new StringContent(result, System.Text.Encoding.UTF8, "application/json") })
-					.Verifiable();
+            handler.Setup(homeCall)
+                   .Returns(new HttpResponseMessage(HttpStatusCode.OK) { Content = new StringContent("{\"Path\":\"/user/hdfs\"}", System.Text.Encoding.UTF8, "application/json") })
+                   .Verifiable();
 
-			handler.Setup(homeCall)
-				   .Returns(new HttpResponseMessage(HttpStatusCode.OK) { Content = new StringContent("{\"Path\":\"/user/hdfs\"}", System.Text.Encoding.UTF8, "application/json") })
-				   .Verifiable();
 
-			var client = new WebHdfsClient(handler.Object, BASE_URL, USER);
+            if (!operation.StartsWith("GETHOMEDIRECTORY", StringComparison.OrdinalIgnoreCase))
+            {
+                Expression<Func<FakeHttpMessageHandler, HttpResponseMessage>> innerCall = t => t.Send(It.Is<HttpRequestMessage>(
+                    msg =>
+                        msg.Method == method &&
+                        msg.RequestUri.ToString().StartsWith(BASE_URL + WebHdfsClient.PREFIX + url + "?user.name=" + USER + "&op=" + operation, StringComparison.OrdinalIgnoreCase)));
+
+                handler.Setup(innerCall)
+                        .Returns(new HttpResponseMessage(HttpStatusCode.OK) { Content = new StringContent(result, System.Text.Encoding.UTF8, "application/json") })
+                        .Verifiable();
+            }
+
+            var client = new WebHdfsClient(handler.Object, BASE_URL, USER);
 			caller(client);
 			handler.Verify();
 		}
