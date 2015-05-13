@@ -9,3 +9,10 @@ Simple .NET WebHDFS client library based on Microsoft.AspNet.WebApi.Client
 - really stupid simple
 
 Code partially taken from some of Microsoft Azure Hdfs library (dont remember it now, really), rewriten and cleared of all the rubbish dependencies. So now it only depends on Microsoft.AspNet.WebApi.Client wich handles all the Http Requests.
+
+[Get it on Nuget][nuget]
+```bash
+PM> Install-Package WebHdfs
+```
+
+[nuget]: https://www.nuget.org/packages/WebHdfs/
