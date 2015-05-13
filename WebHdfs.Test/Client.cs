@@ -5,12 +5,12 @@ using System.Net;
 using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
+using NUnit.Framework;
 
 namespace WebHdfs.Test
 {
-	[TestClass]
+    [TestFixture]
 	public class Integration
 	{
 		private const string BASE_URL = "http://test.me/plz/";
@@ -18,22 +18,21 @@ namespace WebHdfs.Test
         private const string TEST_FILE = "test.txt";
         private const string BOOL_RESULT = "{ \"boolean\" : true }";
 
-
-        [TestMethod]
+        [Test]
 		public void GetStatus()
 		{
 			var path = "/path/to/file";
 			CallClient(c => c.GetFileStatus(path).Wait(), HttpMethod.Get, path, "GETFILESTATUS");
 		}
 
-		[TestMethod]
+		[Test]
 		public void CreateDirectory()
 		{
 			var path = "/path/to/file";
 			CallClient(c => c.CreateDirectory(path).Wait(), HttpMethod.Put, path, "MKDIRS");
 		}
 
-        [TestMethod, DeploymentItem(TEST_FILE)]
+        [Test]
         public void CreateFile()
         {
             var path = "/path/to/file";
@@ -43,49 +42,49 @@ namespace WebHdfs.Test
             CallClient(c => c.CreateFile(File.OpenRead(TEST_FILE), path, CancellationToken.None).Wait(), HttpMethod.Put, path, "CREATE");
         }
 
-        [TestMethod]
+        [Test]
         public void DeleteDirectory()
         {
             var path = "/path/to/file";
             CallClient(c => c.DeleteDirectory(path).Wait(), HttpMethod.Delete, path, "DELETE");
         }
 
-        [TestMethod]
+        [Test]
         public void GetContentSummary()
         {
             var path = "/path/to/file";
             CallClient(c => c.GetContentSummary(path).Wait(), HttpMethod.Get, path, "GETCONTENTSUMMARY");
         }
 
-        [TestMethod]
+        [Test]
         public void GetDirectoryStatus()
         {
             var path = "/path/to/file";
             CallClient(c => c.GetDirectoryStatus(path).Wait(), HttpMethod.Get, path, "LISTSTATUS", "{\"FileStatuses\":{\"FileStatus\":[{ \"accessTime\":0,\"blockSize\":0,\"childrenNum\":4,\"fileId\":308665,\"group\":\"hdfs\",\"length\":0,\"modificationTime\":1429776977330,\"owner\":\"hdfs\",\"pathSuffix\":\"hdfs\",\"permission\":\"755\",\"replication\":0,\"type\":\"DIRECTORY\"}]}}");
         }
 
-        [TestMethod]
+        [Test]
         public void GetFileChecksum()
         {
             var path = "/path/to/file";
             CallClient(c => c.GetFileChecksum(path).Wait(), HttpMethod.Get, path, "GETFILECHECKSUM");
         }
 
-        [TestMethod]
+        [Test]
         public void GetFileStatus()
         {
             var path = "/path/to/file";
             CallClient(c => c.GetFileStatus(path).Wait(), HttpMethod.Get, path, "GETFILESTATUS");
         }
 
-        [TestMethod]
+        [Test]
         public void GetHomeDirectory()
         {
             var path = "/";
             CallClient(c => c.GetHomeDirectory().Wait(), HttpMethod.Get, path, "GETHOMEDIRECTORY");
         }
 
-        [TestMethod]
+        [Test]
         public void OpenFile()
         {
             var path = "/path/to/file";
@@ -93,7 +92,7 @@ namespace WebHdfs.Test
             CallClient(c => c.OpenFile(path, CancellationToken.None).Wait(), HttpMethod.Get, path, "OPEN");
         }
 
-        [TestMethod]
+        [Test]
         public void RenameDirectory()
         {
             var path = "/path/to/file";
@@ -101,7 +100,7 @@ namespace WebHdfs.Test
             CallClient(c => c.RenameDirectory(path, newPath).Wait(), HttpMethod.Put, path, "RENAME&destination=" + newPath, BOOL_RESULT);
         }
 
-        [TestMethod]
+        [Test]
         public void SetAccessTime()
         {
             var path = "/path/to/file";
@@ -109,7 +108,7 @@ namespace WebHdfs.Test
             CallClient(c => c.SetAccessTime(path, time).Wait(), HttpMethod.Put, path, "SETTIMES&accesstime=" + time, BOOL_RESULT);
         }
 
-        [TestMethod]
+        [Test]
         public void SetGroup()
         {
             var path = "/path/to/file";
@@ -117,7 +116,7 @@ namespace WebHdfs.Test
             CallClient(c => c.SetGroup(path, param).Wait(), HttpMethod.Put, path, "SETOWNER&group=" + param, BOOL_RESULT);
         }
 
-        [TestMethod]
+        [Test]
         public void SetModificationTime()
         {
             var path = "/path/to/file";
@@ -125,7 +124,7 @@ namespace WebHdfs.Test
             CallClient(c => c.SetModificationTime(path, param).Wait(), HttpMethod.Put, path, "SETTIMES&modificationtime=" + param, BOOL_RESULT);
         }
 
-        [TestMethod]
+        [Test]
         public void SetOwner()
         {
             var path = "/path/to/file";
@@ -133,7 +132,7 @@ namespace WebHdfs.Test
             CallClient(c => c.SetOwner(path, param).Wait(), HttpMethod.Put, path, "SETOWNER&owner=" + param, BOOL_RESULT);
         }
 
-        [TestMethod]
+        [Test]
         public void SetPermissions()
         {
             var path = "/path/to/file";
@@ -141,7 +140,7 @@ namespace WebHdfs.Test
             CallClient(c => c.SetPermissions(path, param).Wait(), HttpMethod.Put, path, "SETPERMISSION&permission=" + param, BOOL_RESULT);
         }
 
-        [TestMethod]
+        [Test]
         public void SetReplicationFactor()
         {
             var path = "/path/to/file";

@@ -5,3 +5,7 @@ branches:
 solution: WebHdfs.sln
 install:
   - nuget restore
+  - nuget install NUnit.Runners -Version 2.6.4 -OutputDirectory testrunner
+script:
+  - xbuild /p:Configuration=Release /v:m /p:restorepackages=false WebHdfs.sln
+  - mono ./testrunner/NUnit.Runners.2.6.4/tools/nunit-console.exe ./WebHdfs.Test/bin/Release/WebHdfs.Test.dll
