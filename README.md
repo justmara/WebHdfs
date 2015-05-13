@@ -14,3 +14,5 @@ Code partially taken from some of Microsoft Azure Hdfs library (dont remember it
 ```bash
 PM> Install-Package WebHdfs
 ```
+
+[nuget]: https://www.nuget.org/packages/WebHdfs/
