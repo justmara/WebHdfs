@@ -1,0 +1,7 @@
+language: csharp
+branches:
+  only:
+    - master
+solution: WebHdfs.sln
+install:
+  - nuget restore
