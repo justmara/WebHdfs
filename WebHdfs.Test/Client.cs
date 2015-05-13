@@ -1,4 +1,5 @@
 ﻿using System;
+using System.IO;
 using System.Linq.Expressions;
 using System.Net;
 using System.Net.Http;
@@ -36,7 +37,10 @@ namespace WebHdfs.Test
         public void CreateFile()
         {
             var path = "/path/to/file";
+            CallClient(c => c.CreateFile(TEST_FILE, path).Wait(), HttpMethod.Put, path, "CREATE");
             CallClient(c => c.CreateFile(TEST_FILE, path, CancellationToken.None).Wait(), HttpMethod.Put, path, "CREATE");
+            CallClient(c => c.CreateFile(File.OpenRead(TEST_FILE), path).Wait(), HttpMethod.Put, path, "CREATE");
+            CallClient(c => c.CreateFile(File.OpenRead(TEST_FILE), path, CancellationToken.None).Wait(), HttpMethod.Put, path, "CREATE");
         }
 
         [TestMethod]
@@ -85,6 +89,7 @@ namespace WebHdfs.Test
         public void OpenFile()
         {
             var path = "/path/to/file";
+            CallClient(c => c.OpenFile(path, CancellationToken.None).Wait(), HttpMethod.Get, path, "OPEN");
             CallClient(c => c.OpenFile(path, CancellationToken.None).Wait(), HttpMethod.Get, path, "OPEN");
         }
 

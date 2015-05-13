@@ -49,8 +49,14 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Entities\BooleanResult.cs" />
+    <Compile Include="Entities\ContentSummary.cs" />
+    <Compile Include="Entities\DirectoryEntry.cs" />
+    <Compile Include="Entities\DirectoryListing.cs" />
+    <Compile Include="Entities\FileCheckSum.cs" />
     <Compile Include="HttpClientEventArgs.cs" />
     <Compile Include="HttpRequestOptions.cs" />
+    <Compile Include="Entities\IJObject.cs" />
     <Compile Include="WebHdfsClient.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>

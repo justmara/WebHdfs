@@ -1,34 +1,39 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Diagnostics.Contracts;
-using System.Globalization;
 using System.IO;
 using System.Linq;
-using System.Net;
 using System.Net.Http;
 using System.Net.Http.Headers;
-using System.Runtime.Serialization;
-using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using Newtonsoft.Json.Linq;
+using WebHdfs.Entities;
 
 namespace WebHdfs
 {
-
     /// <summary>
-    /// Минимально необходимый клиент для Web HDFS
+    /// Minimalistic WebHdfs client
     /// </summary>
     public class WebHdfsClient
     {
+        /// <summary>
+        /// Base url of WebHdfs service.
+        /// </summary>
         public string BaseUrl { get; private set; }
+
+        /// <summary>
+        /// Home directory.
+        /// </summary>
         public string HomeDirectory { get; private set; }
+
+        /// <summary>
+        /// Username to be used with securify off (when only user.name required);
+        /// </summary>
         public string User { get; private set; }
 
         internal const string PREFIX = "webhdfs/v1";
 
         /// <summary>
-        /// Underlying <see cref="System.Net.Http.HttpMessageHandler"/> that will process web requests (for testing purpose mostly).
+        /// Underlying <see cref="HttpMessageHandler"/> that will process web requests (for testing purpose mostly).
         /// </summary>
         public HttpMessageHandler InnerHandler
         { get; set; }
@@ -65,11 +70,22 @@ namespace WebHdfs
             return "hdfs://" + BaseUrl + path;
         }
 
+        /// <summary>
+        /// Public constructor.
+        /// </summary>
+        /// <param name="baseUrl">Base url of WebHdfs service.</param>
+        /// <param name="user">Username to be used on each call.</param>
         public WebHdfsClient(string baseUrl, string user = null)
             :this(new HttpClientHandler(), baseUrl, user)
         {
         }
 
+        /// <summary>
+        /// Public constructor.
+        /// </summary>
+        /// <param name="handler">Underlying <see cref="HttpMessageHandler"/> to be used (for testing mostly).</param>
+        /// <param name="baseUrl">Base url of WebHdfs service.</param>
+        /// <param name="user">Username to be used on each call.</param>
         public WebHdfsClient(HttpMessageHandler handler, string baseUrl, string user = null) 
         {
             InnerHandler = handler;
@@ -83,7 +99,7 @@ namespace WebHdfs
         /// <summary>
         /// List the statuses of the files/directories in the given path if the path is a directory. 
         /// </summary>
-        /// <param name="path"></param>
+        /// <param name="path">The string representation a Path.</param>
         /// <returns></returns>
         public Task<DirectoryListing> GetDirectoryStatus(string path)
         {
@@ -93,7 +109,7 @@ namespace WebHdfs
         /// <summary>
         /// Return a file status object that represents the path.
         /// </summary>
-        /// <param name="path"></param>
+        /// <param name="path">The string representation a Path.</param>
         /// <returns></returns>
         public Task<DirectoryEntry> GetFileStatus(string path)
         {
@@ -122,7 +138,7 @@ namespace WebHdfs
         /// <summary>
         /// Return the ContentSummary of a given Path
         /// </summary>
-        /// <param name="path"></param>
+        /// <param name="path">The string representation a Path.</param>
         /// <returns></returns>
         public Task<ContentSummary> GetContentSummary(string path)
         {
@@ -140,13 +156,22 @@ namespace WebHdfs
             return CallWebHDFS<FileChecksum>(path, "GETFILECHECKSUM", HttpMethod.Get);
         }
 
-        // todo, overloads with offset & length
         /// <summary>
         /// Opens an FSDataInputStream at the indicated Path
         /// </summary>
-        /// <param name="path"></param>
-        /// <param name="token"></param>
-        /// <returns></returns>
+        /// <param name="path">The string representation a Path.</param>
+        /// <returns>Async <see cref="Task{Stream}"/> with file content.</returns>
+        public async Task<Stream> OpenFile(string path)
+        {
+            return await OpenFile(path, -1, -1, CancellationToken.None);
+        }
+
+        /// <summary>
+        /// Opens an FSDataInputStream at the indicated Path
+        /// </summary>
+        /// <param name="path">The string representation a Path.</param>
+        /// <param name="token"><see cref="CancellationToken"/> to cancel call if needed.</param>
+        /// <returns>Async <see cref="Task{Stream}"/> with file content.</returns>
         public async Task<Stream> OpenFile(string path, CancellationToken token)
         {
             return await OpenFile(path, -1, -1, token);
@@ -156,11 +181,11 @@ namespace WebHdfs
         /// Opens an FSDataInputStream at the indicated Path.  The offset and length will allow 
         /// you to get a subset of the file.  
         /// </summary>
-        /// <param name="path"></param>
-        /// <param name="offset">This includes any header bytes</param>
-        /// <param name="length"></param>
-        /// <param name="token"></param>
-        /// <returns></returns>
+        /// <param name="path">The string representation a Path.</param>
+        /// <param name="offset">The starting byte position. This includes any header bytes</param>
+        /// <param name="length">The number of bytes to be processed.</param>
+        /// <param name="token"><see cref="CancellationToken"/> to cancel call if needed.</param>
+        /// <returns>Async <see cref="Task{Stream}"/> with file content.</returns>
         public async Task<Stream> OpenFile(string path, int offset, int length, CancellationToken token)
         {
             string uri = GetUriForOperation(path) + "op=OPEN";
@@ -182,21 +207,20 @@ namespace WebHdfs
         /// Make the given file and all non-existent parents into directories. 
         /// Has the semantics of Unix 'mkdir -p'. Existence of the directory hierarchy is not an error. 
         /// </summary>
-        /// <param name="path"></param>
-        /// <returns></returns>
+        /// <param name="path">The string representation a Path.</param>
+        /// <returns>Async <see cref="Task{Boolean}"/> with result of operation.</returns>
         public async Task<bool> CreateDirectory(string path)
         {
             var result = await CallWebHDFS<BooleanResult>(path, "MKDIRS", HttpMethod.Put);
             return result.Value;
-
         }
 
         /// <summary>
         /// Renames Path src to Path dst.
         /// </summary>
-        /// <param name="path"></param>
+        /// <param name="path">The string representation a Path.</param>
         /// <param name="newPath"></param>
-        /// <returns></returns>
+        /// <returns>Async <see cref="Task{Boolean}"/> with result of operation.</returns>
         public async Task<bool> RenameDirectory(string path, string newPath)
         {
             var result = await CallWebHDFS<BooleanResult>(path, "RENAME&destination=" + newPath, HttpMethod.Put);
@@ -208,7 +232,7 @@ namespace WebHdfs
         /// not delete if directory is not empty
         /// </summary>
         /// <param name="path">the path to delete</param>
-        /// <returns>true if delete is successful else false. </returns>
+        /// <returns>Async <see cref="Task{Boolean}"/> with result of operation.</returns>
         public Task<bool> DeleteDirectory(string path)
         {
             return DeleteDirectory(path, false);
@@ -221,7 +245,7 @@ namespace WebHdfs
         /// <param name="path">the path to delete</param>
         /// <param name="recursive">if path is a directory and set to true, the directory is deleted else throws an exception.
         /// In case of a file the recursive can be set to either true or false. </param>
-        /// <returns>true if delete is successful else false. </returns>
+        /// <returns>Async <see cref="Task{Boolean}"/> with result of operation.</returns>
         public async Task<bool> DeleteDirectory(string path, bool recursive)
         {
             var result = await CallWebHDFS<BooleanResult>(path, "DELETE&recursive=" + recursive.ToString().ToLower(), HttpMethod.Delete);
@@ -231,8 +255,9 @@ namespace WebHdfs
         /// <summary>
         /// Set permission of a path.
         /// </summary>
-        /// <param name="path"></param>
+        /// <param name="path">The string representation a Path.</param>
         /// <param name="permissions"></param>
+        /// <returns>Async <see cref="Task{Boolean}"/> with result of operation.</returns>
         public async Task<bool> SetPermissions(string path, string permissions)
         {
             var result = await CallWebHDFS<BooleanResult>(path, "SETPERMISSION&permission=" + permissions, HttpMethod.Put);
@@ -242,8 +267,9 @@ namespace WebHdfs
         /// <summary>
         /// Sets the owner for the file 
         /// </summary>
-        /// <param name="path"></param>
+        /// <param name="path">The string representation a Path.</param>
         /// <param name="owner">If it is null, the original username remains unchanged</param>
+        /// <returns>Async <see cref="Task{Boolean}"/> with result of operation.</returns>
         public async Task<bool> SetOwner(string path, string owner)
         {
             var result = await CallWebHDFS<BooleanResult>(path, "SETOWNER&owner=" + owner, HttpMethod.Put);
@@ -253,8 +279,9 @@ namespace WebHdfs
         /// <summary>
         /// Sets the group for the file 
         /// </summary>
-        /// <param name="path"></param>
+        /// <param name="path">The string representation a Path.</param>
         /// <param name="group">If it is null, the original groupname remains unchanged</param>
+        /// <returns>Async <see cref="Task{Boolean}"/> with result of operation.</returns>
         public async Task<bool> SetGroup(string path, string group)
         {
             var result = await CallWebHDFS<BooleanResult>(path, "SETOWNER&group=" + group, HttpMethod.Put);
@@ -264,9 +291,9 @@ namespace WebHdfs
         /// <summary>
         /// Set replication for an existing file.
         /// </summary>
-        /// <param name="path"></param>
+        /// <param name="path">The string representation a Path.</param>
         /// <param name="replicationFactor"></param>
-        /// <returns></returns>
+        /// <returns>Async <see cref="Task{Boolean}"/> with result of operation.</returns>
         public async Task<bool> SetReplicationFactor(string path, int replicationFactor)
         {
             var result = await CallWebHDFS<BooleanResult>(path, "SETREPLICATION&replication=" + replicationFactor.ToString(), HttpMethod.Put);
@@ -276,9 +303,10 @@ namespace WebHdfs
         /// <summary>
         /// Set access time of a file
         /// </summary>
-        /// <param name="path"></param>
+        /// <param name="path">The string representation a Path.</param>
         /// <param name="accessTime">Set the access time of this file. The number of milliseconds since Jan 1, 1970. 
         /// A value of -1 means that this call should not set access time</param>
+        /// <returns>Async <see cref="Task{Boolean}"/> with result of operation.</returns>
         public async Task<bool> SetAccessTime(string path, string accessTime)
         {
             var result = await CallWebHDFS<BooleanResult>(path, "SETTIMES&accesstime=" + accessTime, HttpMethod.Put);
@@ -288,9 +316,10 @@ namespace WebHdfs
         /// <summary>
         /// Set modification time of a file
         /// </summary>
-        /// <param name="path"></param>
+        /// <param name="path">The string representation a Path.</param>
         /// <param name="modificationTime">Set the modification time of this file. The number of milliseconds since Jan 1, 1970.
         /// A value of -1 means that this call should not set modification time</param>
+        /// <returns>Async <see cref="Task{Boolean}"/> with result of operation.</returns>
         public async Task<bool> SetModificationTime(string path, string modificationTime)
         {
             var result = await CallWebHDFS<BooleanResult>(path, "SETTIMES&modificationtime=" + modificationTime, HttpMethod.Put);
@@ -302,7 +331,19 @@ namespace WebHdfs
         /// </summary>
         /// <param name="localFile"></param>
         /// <param name="remotePath"></param>
-        /// <returns></returns>
+        /// <returns>Async <see cref="Task{Boolean}"/> with result of operation.</returns>
+        public Task<bool> CreateFile(string localFile, string remotePath)
+        {
+            return CreateFile(localFile, remotePath, CancellationToken.None);
+        }
+
+        /// <summary>
+        /// Opens an FSDataOutputStream at the indicated Path. Files are overwritten by default.
+        /// </summary>
+        /// <param name="localFile"></param>
+        /// <param name="remotePath"></param>
+        /// <param name="token"></param>
+        /// <returns>Async <see cref="Task{Boolean}"/> with result of operation.</returns>
         public async Task<bool> CreateFile(string localFile, string remotePath, CancellationToken token)
         {
             var sc = new StreamContent(File.OpenRead(localFile));
@@ -315,7 +356,19 @@ namespace WebHdfs
         /// </summary>
         /// <param name="content"></param>
         /// <param name="remotePath"></param>
-        /// <returns></returns>
+        /// <returns>Async <see cref="Task{Boolean}"/> with result of operation.</returns>
+        public Task<bool> CreateFile(Stream content, string remotePath)
+        {
+            return CreateFile(content, remotePath, CancellationToken.None);
+        }
+
+        /// <summary>
+        /// Opens an FSDataOutputStream at the indicated Path. Files are overwritten by default.
+        /// </summary>
+        /// <param name="content"></param>
+        /// <param name="remotePath"></param>
+        /// <param name="token"></param>
+        /// <returns>Async <see cref="Task{Boolean}"/> with result of operation.</returns>
         public async Task<bool> CreateFile(Stream content, string remotePath, CancellationToken token)
         {
             var sc = new StreamContent(content);
@@ -475,127 +528,6 @@ namespace WebHdfs
         public virtual void OnError(HttpResponseMessage response, Exception exception)
         {
             Error(this, new HttpClientEventArgs(response, exception));
-        }
-    }
-
-    public interface IJObject
-    {
-        void Parse(JObject obj);
-    }
-
-    public class DirectoryListing : IJObject
-    {
-        IEnumerable<DirectoryEntry> directoryEntries;
-
-        public void Parse(JObject rootEntry)
-        {
-            directoryEntries = rootEntry.Value<JObject>("FileStatuses").Value<JArray>("FileStatus").Select(fs =>
-            {
-                var d = new DirectoryEntry();
-                d.Parse(fs.Value<JObject>());
-                return d;
-            });
-        }
-
-        public IEnumerable<DirectoryEntry> Directories
-        { get { return directoryEntries.Where(fs => fs.Type == "DIRECTORY"); } }
-        public IEnumerable<DirectoryEntry> Files
-        { get { return directoryEntries.Where(fs => fs.Type == "FILE"); } }
-    }
-
-    public class BooleanResult : IJObject
-    {
-        public bool Value { get; set; }
-        public void Parse(JObject obj)
-        {
-            Value = obj.Value<bool>("boolean");
-        }
-    }
-
-    public class DirectoryEntry : IJObject
-    {
-        // todo - should makt these immutable.
-        public string AccessTime
-        { get; set; }
-        public string BlockSize
-        { get; set; }
-        public string Group
-        { get; set; }
-        public Int64 Length
-        { get; set; }
-        public string ModificationTime
-        { get; set; }
-        public string Owner
-        { get; set; }
-        public string PathSuffix
-        { get; set; }
-        // todo, replace with flag enum 
-        public string Permission
-        { get; set; }
-        public int Replication
-        { get; set; }
-        // todo, replace with enum 
-        public string Type
-        { get; set; }
-
-        public void Parse(JObject value)
-        {
-            var tmp = value.Value<JObject>("FileStatus") ?? value;
-            AccessTime = tmp.Value<string>("accessTime");
-            BlockSize = tmp.Value<string>("blockSize");
-            Group = tmp.Value<string>("group");
-            Length = tmp.Value<Int64>("length");
-            ModificationTime = tmp.Value<string>("modificationTime");
-            Owner = tmp.Value<string>("owner");
-            PathSuffix = tmp.Value<string>("pathSuffix");
-            Permission = tmp.Value<string>("permission");
-            Replication = tmp.Value<int>("replication");
-            Type = tmp.Value<string>("type");
-        }
-    }
-
-    public class ContentSummary : IJObject
-    {
-        // todo - should makt these immutable.
-        public int DirectoryCount
-        { get; set; }
-        public int FileCount
-        { get; set; }
-        public long Length
-        { get; set; }
-        public int Quota
-        { get; set; }
-        public long SpaceConsumed
-        { get; set; }
-        public long SpaceQuota
-        { get; set; }
-
-        public void Parse(JObject value)
-        {
-            DirectoryCount = value.Value<int>("directoryCount");
-            FileCount = value.Value<int>("fileCount");
-            Length = value.Value<long>("length");
-            Quota = value.Value<int>("quota");
-            SpaceConsumed = value.Value<long>("spaceConsumed");
-            SpaceQuota = value.Value<long>("spaceQuota");
-        }
-
-    }
-
-    public class FileChecksum : IJObject
-    {
-        public string Algorithm
-        { get; set; }
-        public string Checksum
-        { get; set; }
-        public int Length
-        { get; set; }
-
-        public void Parse(JObject value)
-        {
-            Algorithm = value.Value<string>("algorithm");
-            Checksum = value.Value<string>("bytes");
-            Length = value.Value<int>("length");
         }
     }
 }
