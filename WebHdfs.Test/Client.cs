@@ -15,6 +15,7 @@ namespace WebHdfs.Test
 		private const string BASE_URL = "http://test.me/plz/";
 		private const string USER = "hdfs";
         private const string TEST_FILE = "test.txt";
+        private const string BOOL_RESULT = "{ \"boolean\" : true }";
 
 
         [TestMethod]
@@ -92,7 +93,55 @@ namespace WebHdfs.Test
         {
             var path = "/path/to/file";
             var newPath = path + "-new";
-            CallClient(c => c.RenameDirectory(path, newPath).Wait(), HttpMethod.Put, path, "RENAME&destination=" + newPath, "{ \"boolean\" : true }");
+            CallClient(c => c.RenameDirectory(path, newPath).Wait(), HttpMethod.Put, path, "RENAME&destination=" + newPath, BOOL_RESULT);
+        }
+
+        [TestMethod]
+        public void SetAccessTime()
+        {
+            var path = "/path/to/file";
+            var time = "123";
+            CallClient(c => c.SetAccessTime(path, time).Wait(), HttpMethod.Put, path, "SETTIMES&accesstime=" + time, BOOL_RESULT);
+        }
+
+        [TestMethod]
+        public void SetGroup()
+        {
+            var path = "/path/to/file";
+            var param = "123";
+            CallClient(c => c.SetGroup(path, param).Wait(), HttpMethod.Put, path, "SETOWNER&group=" + param, BOOL_RESULT);
+        }
+
+        [TestMethod]
+        public void SetModificationTime()
+        {
+            var path = "/path/to/file";
+            var param = "123";
+            CallClient(c => c.SetModificationTime(path, param).Wait(), HttpMethod.Put, path, "SETTIMES&modificationtime=" + param, BOOL_RESULT);
+        }
+
+        [TestMethod]
+        public void SetOwner()
+        {
+            var path = "/path/to/file";
+            var param = "123";
+            CallClient(c => c.SetOwner(path, param).Wait(), HttpMethod.Put, path, "SETOWNER&owner=" + param, BOOL_RESULT);
+        }
+
+        [TestMethod]
+        public void SetPermissions()
+        {
+            var path = "/path/to/file";
+            var param = "123";
+            CallClient(c => c.SetPermissions(path, param).Wait(), HttpMethod.Put, path, "SETPERMISSION&permission=" + param, BOOL_RESULT);
+        }
+
+        [TestMethod]
+        public void SetReplicationFactor()
+        {
+            var path = "/path/to/file";
+            var param = 100;
+            CallClient(c => c.SetReplicationFactor(path, param).Wait(), HttpMethod.Put, path, "SETREPLICATION&replication=" + param, BOOL_RESULT);
         }
 
         private void CallClient(Action<WebHdfsClient> caller, HttpMethod method, string url, string operation, string result = "{}")
