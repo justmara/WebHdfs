@@ -1,6 +1,7 @@
 language: csharp
 branches:
   only:
+    - travis
     - master
 solution: WebHdfs.sln
 install:
