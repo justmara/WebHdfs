@@ -2,3 +2,8 @@
 
 # WebHdfs
 Simple .NET WebHDFS client library based on Microsoft.AspNet.WebApi.Client
+
+'Simple' means:
+- no security (security off mode on hdfs)
+- no logging (deal with it. maybe will be added someday later)
+- really stupid simple
