@@ -1,4 +1,4 @@
-[![Build status](https://ci.appveyor.com/api/projects/status/xrd22d2lkf2o6832?svg=true)](https://ci.appveyor.com/project/justmara/webhdfs)
+[![Build status](https://ci.appveyor.com/api/projects/status/xrd22d2lkf2o6832?svg=true)](https://ci.appveyor.com/project/justmara/webhdfs) [![Build Status](https://travis-ci.org/justmara/WebHdfs.svg?branch=master)](https://travis-ci.org/justmara/WebHdfs)
 
 # WebHdfs
 Simple .NET WebHDFS client library based on Microsoft.AspNet.WebApi.Client
