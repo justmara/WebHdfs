@@ -457,17 +457,20 @@ namespace WebHdfs
 
             var response = await GetResponseMessageAsync(uri, content, options ?? new HttpRequestOptions());
 
-            if (!response.IsSuccessStatusCode)
-                OnError(response, null);
+            if (response.IsSuccessStatusCode)
+            {
 
-            var jobj = await response.Content.ReadAsAsync<JObject>();
+                var jobj = await response.Content.ReadAsAsync<JObject>();
 
-            if (jobj == null)
-                return default(T);
+                if (jobj == null)
+                    return default(T);
 
-            var result = new T() as IJObject;
-            result.Parse(jobj);
-            return (T)result;
+                var result = new T() as IJObject;
+                result.Parse(jobj);
+                return (T)result;
+            }
+
+            return default(T);
         }
 
         /// <summary>

@@ -148,7 +148,18 @@ namespace WebHdfs.Test
             CallClient(c => c.SetReplicationFactor(path, param).Wait(), HttpMethod.Put, path, "SETREPLICATION&replication=" + param, BOOL_RESULT);
         }
 
-        private void CallClient(Action<WebHdfsClient> caller, HttpMethod method, string url, string operation, string result = "{}")
+        [Test]
+        public void GetEmptyResult()
+        {
+            var path = "/path/to/file";
+            CallClient(async c =>
+                {
+                    var file = await c.GetFileStatus(path);
+                    Assert.IsNull(file);
+                }, HttpMethod.Get, path, "GETFILESTATUS", status: HttpStatusCode.NotFound);
+        }
+
+        private void CallClient(Action<WebHdfsClient> caller, HttpMethod method, string url, string operation, string result = "{}", HttpStatusCode status = HttpStatusCode.OK)
 		{
 			var handler = new Mock<FakeHttpMessageHandler>();
 			handler.CallBase = true;
@@ -171,7 +182,7 @@ namespace WebHdfs.Test
                         msg.RequestUri.ToString().StartsWith(BASE_URL + WebHdfsClient.PREFIX + url + "?user.name=" + USER + "&op=" + operation, StringComparison.OrdinalIgnoreCase)));
 
                 handler.Setup(innerCall)
-                        .Returns(new HttpResponseMessage(HttpStatusCode.OK) { Content = new StringContent(result, System.Text.Encoding.UTF8, "application/json") })
+                        .Returns(new HttpResponseMessage(status) { Content = new StringContent(result, System.Text.Encoding.UTF8, "application/json") })
                         .Verifiable();
             }
 
