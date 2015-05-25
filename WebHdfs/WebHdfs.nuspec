@@ -10,5 +10,6 @@
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
     <description>$description$</description>
     <copyright>Copyright 2015</copyright>
+	  <releaseNotes>v0.1.2 - fixed 404 response handling</releaseNotes>
   </metadata>
 </package>
