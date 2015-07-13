@@ -16,7 +16,7 @@ build:
 environment:
     COVERALLS_REPO_TOKEN: HocFG7JOlosaliJO/ea9PDMhkeWKV/yzh+Iu2UHbBBGgl724xgG7UiBY8tV90rG6
 after_test: 
-    - packages\OpenCover.4.5.3723\OpenCover.Console.exe -register:user -filter:"+[*]*" -target:"C:\Program Files (x86)\Microsoft Visual Studio 12.0\Common7\IDE\MSTest.exe" -targetargs:"/testcontainer:WebHdfs.Test/bin/Release/WebHdfs.Test.dll" -output:coverage.xml
+    - packages\OpenCover.4.5.3723\OpenCover.Console.exe -register:user -filter:"+[*]*" -target:"nunit-console" -targetargs:"/testcontainer:WebHdfs.Test/bin/Release/WebHdfs.Test.dll" -output:coverage.xml
     - packages\coveralls.net.0.5.0\csmacnz.Coveralls.exe --opencover coverage.xml
 deploy:
 - provider: NuGet
