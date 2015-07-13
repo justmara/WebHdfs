@@ -1,0 +1,26 @@
+﻿version: '{branch}-0.{build}'
+branches:
+  only:
+  - master
+  - release
+skip_tags: true
+configuration: Release
+before_build:
+- nuget restore
+build:
+  publish_nuget: true
+  publish_nuget_symbols: true
+  include_nuget_references: true
+  verbosity: minimal
+environment:
+    COVERALLS_REPO_TOKEN: HocFG7JOlosaliJO/ea9PDMhkeWKV/yzh+Iu2UHbBBGgl724xgG7UiBY8tV90rG6
+after_test: 
+    - packages\OpenCover.4.5.3723\OpenCover.Console.exe -register:user -filter:"+[*]*" -target:"C:\Program Files (x86)\Microsoft Visual Studio 12.0\Common7\IDE\MSTest.exe" -targetargs:"/testcontainer:WebHdfs.Test/bin/debug/WebHdfs.Test.dll" -output:coverage.xml
+    - packages\coveralls.net.0.5.0\csmacnz.Coveralls.exe --opencover coverage.xml
+deploy:
+- provider: NuGet
+  api_key:
+    secure: 1La37V7bRU+XrV/GRhP2iqT0VuU1O7RAGZPTtb/Bm5Trqms8iRbIwBW/Y8IQsmVl
+  on:
+    branch: release
+
