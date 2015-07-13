@@ -8,6 +8,7 @@ configuration: Release
 before_build:
 - nuget restore
 build:
+  project: WebHdfs.sln
   publish_nuget: true
   publish_nuget_symbols: true
   include_nuget_references: true
