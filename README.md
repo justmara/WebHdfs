@@ -1,4 +1,4 @@
-[![Build status](https://ci.appveyor.com/api/projects/status/xrd22d2lkf2o6832?svg=true)](https://ci.appveyor.com/project/justmara/webhdfs) [![Build Status](https://travis-ci.org/justmara/WebHdfs.svg?branch=master)](https://travis-ci.org/justmara/WebHdfs) [![Latest version](https://img.shields.io/nuget/v/WebHdfs.svg)](https://www.nuget.org/packages/WebHdfs/)
+[![Build status](https://ci.appveyor.com/api/projects/status/xrd22d2lkf2o6832?svg=true)](https://ci.appveyor.com/project/justmara/webhdfs) [![Build Status](https://travis-ci.org/justmara/WebHdfs.svg?branch=master)](https://travis-ci.org/justmara/WebHdfs) [![Coverage Status](https://coveralls.io/repos/justmara/WebHdfs/badge.svg?branch=master&service=github)](https://coveralls.io/github/justmara/WebHdfs?branch=master)[![Latest version](https://img.shields.io/nuget/v/WebHdfs.svg)](https://www.nuget.org/packages/WebHdfs/)
 
 # WebHdfs
 Simple .NET WebHDFS client library based on Microsoft.AspNet.WebApi.Client
