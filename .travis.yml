@@ -4,13 +4,12 @@ branches:
     - travis
     - master
 solution: WebHdfs.sln
-before_install:
-  - pip install --user codecov
 install:
   - nuget restore
   - nuget install NUnit.Runners -Version 2.6.4 -OutputDirectory testrunner
 script:
   - xbuild /p:Configuration=Release /v:m /p:restorepackages=false WebHdfs.sln
-  - mono ./testrunner/NUnit.Runners.2.6.4/tools/nunit-console.exe ./WebHdfs.Test/bin/Release/WebHdfs.Test.dll
-after_success:
-  - codecov
+test_script:
+  - mono ./packages/OpenCover.4.5.3723/OpenCover.Console.exe -register:user -filter:"+[*]*" -target:"./testrunner/NUnit.Runners.2.6.4/tools/nunit-console.exe" -targetdir:"WebHdfs.Test/bin/Release" -targetargs:"WebHdfs.Test.dll" -output:./coverage.xml -returntargetcode
+  - pip install --user codecov
+  - codecov -f "coverage.xml"
