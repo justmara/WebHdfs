@@ -10,3 +10,7 @@ install:
 script:
   - xbuild /p:Configuration=Release /v:m /p:restorepackages=false WebHdfs.sln
   - mono ./testrunner/NUnit.Runners.2.6.4/tools/nunit-console.exe ./WebHdfs.Test/bin/Release/WebHdfs.Test.dll
+#  - mono ./packages/OpenCover.4.5.3723/OpenCover.Console.exe -register:user -filter:"+[*]*" -target:"./testrunner/NUnit.Runners.2.6.4/tools/nunit-console.exe" -targetargs:"./WebHdfs.Test/bin/Release/WebHdfs.Test.dll" -output:./coverage.xml -returntargetcode
+#after_success:
+#  - pip install --user codecov
+#  - codecov -f "coverage.xml"

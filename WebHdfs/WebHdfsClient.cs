@@ -13,7 +13,7 @@ namespace WebHdfs
     /// <summary>
     /// Minimalistic WebHdfs client
     /// </summary>
-    public class WebHdfsClient
+    public class WebHdfsClient : IWebHdfsClient
     {
         /// <summary>
         /// Base url of WebHdfs service.
