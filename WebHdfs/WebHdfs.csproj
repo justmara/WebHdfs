@@ -57,6 +57,7 @@
     <Compile Include="HttpClientEventArgs.cs" />
     <Compile Include="HttpRequestOptions.cs" />
     <Compile Include="Entities\IJObject.cs" />
+    <Compile Include="IWebHdfsClient.cs" />
     <Compile Include="WebHdfsClient.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
