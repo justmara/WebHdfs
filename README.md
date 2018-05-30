@@ -16,3 +16,7 @@ PM> Install-Package WebHdfs
 ```
 
 [nuget]: https://www.nuget.org/packages/WebHdfs/
+
+License
+=======
+This project is licensed under the [MIT license](https://github.com/justmara/WebHdfs/edit/master/LICENSE).
